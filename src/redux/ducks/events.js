@@ -1,9 +1,9 @@
 import { all, takeEvery, put, call } from 'redux-saga/effects'
-import { appName } from '../config'
+import { appName } from '../../config'
 import { Record, List } from 'immutable'
 import { createSelector } from 'reselect'
-import { fbToEntities } from '../services/utils'
-import api from '../services/api'
+import { fbToEntities } from '../../services/utils'
+import api from '../../services/api'
 
 /**
  * Constants

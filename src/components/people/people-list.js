@@ -8,7 +8,7 @@ function PeopleList(props) {
   const people = useSelector(peopleList)
   useEffect(() => {
     dispatch(fetchAllPeople())
-  }, [dispatch, fetchAllPeople])
+  }, [dispatch])
 
   return (
     <div>
