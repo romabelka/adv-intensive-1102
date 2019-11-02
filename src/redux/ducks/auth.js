@@ -12,6 +12,8 @@ export const SIGN_UP_START = `${prefix}/SIGN_UP_START`
 export const SIGN_UP_SUCCESS = `${prefix}/SIGN_UP_SUCCESS`
 export const SIGN_UP_ERROR = `${prefix}/SIGN_UP_ERROR`
 
+export const SIGN_IN_SUCCESS = `${prefix}/SIGN_IN_SUCCESS`
+
 /**
  * Reducer
  * */
@@ -29,6 +31,7 @@ export default function reducer(state = new ReducerRecord(), action) {
       return state.set('loading', true).set('error', null)
 
     case SIGN_UP_SUCCESS:
+    case SIGN_IN_SUCCESS:
       return state.set('loading', false).set('user', payload.user)
 
     case SIGN_UP_ERROR:
@@ -65,4 +68,19 @@ export const signUp = (email, password) => async (dispatch) => {
       error
     })
   }
+}
+
+/**
+ *   INIT
+ **/
+
+export function init(store) {
+  apiService.onAuthChange((user) => {
+    if (user) {
+      store.dispatch({
+        type: SIGN_IN_SUCCESS,
+        payload: { user }
+      })
+    }
+  })
 }

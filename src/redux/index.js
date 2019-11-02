@@ -4,7 +4,12 @@ import logger from 'redux-logger'
 import thunk from 'redux-thunk'
 import reducer from './reducer'
 import history from '../history'
+import { init as initAuth } from './ducks/auth'
 
 const enhancer = applyMiddleware(routerMiddleware(history), thunk, logger)
 
-export default createStore(reducer, enhancer)
+const store = createStore(reducer, enhancer)
+
+initAuth(store)
+
+export default store

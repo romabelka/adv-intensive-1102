@@ -11,6 +11,8 @@ class APIService {
 
   signUp = (email, password) =>
     this.fb.auth().createUserWithEmailAndPassword(email, password)
+
+  onAuthChange = (callback) => this.fb.auth().onAuthStateChanged(callback)
 }
 
 export default new APIService()
