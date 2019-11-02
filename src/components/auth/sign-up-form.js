@@ -7,7 +7,6 @@ function SignUpForm({ onSubmit }) {
   return (
     <Formik initialValues={{ email: '', password: '' }} onSubmit={onSubmit}>
       {(fomikBag) => {
-        console.log('---', fomikBag)
         return (
           <Form>
             <h3>Sign Up Form</h3>

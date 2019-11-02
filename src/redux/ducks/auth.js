@@ -1,8 +1,7 @@
-import { put, call, take } from 'redux-saga/effects'
+import { put, call, take, select, delay } from 'redux-saga/effects'
 import { appName } from '../../config'
 import { Record } from 'immutable'
 import apiService from '../../services/api'
-import { delay } from 'q'
 
 /**
  * Constants
@@ -50,6 +49,8 @@ export default function reducer(state = new ReducerRecord(), action) {
  * Selectors
  * */
 
+export const authLoadingSelector = (state) => state[moduleName].loading
+
 /**
  * Action Creators
  * */
@@ -75,6 +76,9 @@ export function* signUpSaga() {
 
     const action = yield take(SIGN_UP_REQUEST)
     const { email, password } = action.payload
+    const isLoading = yield select(authLoadingSelector)
+
+    if (isLoading) continue
 
     yield put({
       type: SIGN_UP_START
