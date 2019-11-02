@@ -1,10 +1,14 @@
-import React from 'react'
-import { useSelector } from 'react-redux'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import PeopleForm from './people-form'
-import { peopleList } from '../../redux/ducks/people'
+import { fetchAllPeople, peopleList } from '../../redux/ducks/people'
 
 function PeopleList(props) {
+  const dispatch = useDispatch()
   const people = useSelector(peopleList)
+  useEffect(() => {
+    dispatch(fetchAllPeople())
+  }, [dispatch, fetchAllPeople])
 
   return (
     <div>

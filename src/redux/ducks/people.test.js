@@ -5,7 +5,7 @@ import {
   ADD_PERSON_SUCCESS,
   ADD_PERSON_REQUEST
 } from './people'
-import { generateId } from '../utils'
+import apiService from '../../services/api'
 
 describe('People Duck', () => {
   describe('People Saga', () => {
@@ -22,11 +22,13 @@ describe('People Duck', () => {
 
       expect(saga.next().value).toEqual(take(ADD_PERSON_REQUEST))
 
-      expect(saga.next(action).value).toEqual(call(generateId))
+      expect(saga.next(action).value).toEqual(
+        call(apiService.addPerson, action.payload)
+      )
 
       const id = 'some-test-id' //generateId()
 
-      expect(saga.next(id).value).toEqual(
+      expect(saga.next({ id }).value).toEqual(
         put({
           type: ADD_PERSON_SUCCESS,
           payload: { ...testPerson, id }
