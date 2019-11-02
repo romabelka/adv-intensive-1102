@@ -88,7 +88,7 @@ export function* addPersonSaga() {
 }
 
 export function* fetchAllSaga() {
-  const data = yield call(apiService.loadAllPeople)
+  const data = yield call(apiService.fetchAllPeople)
 
   yield put({
     type: FETCH_ALL_SUCCESS,

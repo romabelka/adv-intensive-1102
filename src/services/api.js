@@ -22,7 +22,7 @@ class APIService {
       .get()
       .then(resToEntities)
 
-  loadAllPeople = () =>
+  fetchAllPeople = () =>
     this.fb
       .firestore()
       .collection('people')
