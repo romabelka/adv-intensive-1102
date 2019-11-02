@@ -5,7 +5,6 @@ import createSagaMiddleware from 'redux-saga'
 import reducer from './reducer'
 import history from '../history'
 import rootSaga from './saga'
-import { init as initAuth } from './ducks/auth'
 
 export default function initStore(initialState) {
   const sagaMiddleware = createSagaMiddleware()
@@ -19,8 +18,6 @@ export default function initStore(initialState) {
   const store = createStore(reducer, enhancer, initialState)
 
   sagaMiddleware.run(rootSaga)
-
-  initAuth(store)
 
   return store
 }

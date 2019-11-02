@@ -1,4 +1,5 @@
-import { put, call, take, select, delay } from 'redux-saga/effects'
+import { put, call, take, select, delay, all } from 'redux-saga/effects'
+import { eventChannel } from 'redux-saga'
 import { appName } from '../../config'
 import { Record } from 'immutable'
 import apiService from '../../services/api'
@@ -101,21 +102,22 @@ export function* signUpSaga() {
   }
 }
 
-export function* saga() {
-  yield signUpSaga()
+const createAuthChannel = () =>
+  eventChannel((emit) => apiService.onAuthChange((user) => emit({ user })))
+
+export function* watchAuthStateSaga() {
+  const channel = yield call(createAuthChannel)
+
+  const { user } = yield take(channel)
+
+  if (user) {
+    yield put({
+      type: SIGN_IN_SUCCESS,
+      payload: { user }
+    })
+  }
 }
 
-/**
- *   INIT
- **/
-
-export function init(store) {
-  apiService.onAuthChange((user) => {
-    if (user) {
-      store.dispatch({
-        type: SIGN_IN_SUCCESS,
-        payload: { user }
-      })
-    }
-  })
+export function* saga() {
+  yield all([signUpSaga(), watchAuthStateSaga()])
 }
