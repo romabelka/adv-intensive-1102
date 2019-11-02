@@ -1,4 +1,15 @@
-import { take, put, call, takeEvery, all } from 'redux-saga/effects'
+import {
+  take,
+  put,
+  call,
+  spawn,
+  all,
+  delay,
+  fork,
+  cancel,
+  cancelled,
+  race
+} from 'redux-saga/effects'
 import { appName } from '../../config'
 import { List, Record } from 'immutable'
 import apiService from '../../services/api'
@@ -34,11 +45,6 @@ export default function reducer(state = new ReducerRecord(), action) {
   const { type, payload } = action
 
   switch (type) {
-    case ADD_PERSON_SUCCESS:
-      return state.update('entities', (entities) =>
-        entities.push(new PersonRecord(payload))
-      )
-
     case FETCH_ALL_SUCCESS:
       return state.set('entities', fbToEntities(payload, PersonRecord))
 
@@ -96,6 +102,52 @@ export function* fetchAllSaga() {
   })
 }
 
+export function* syncAllWithPolling() {
+  try {
+    while (true) {
+      yield fork(fetchAllSaga)
+      //yield call(fetchAllSaga)
+      yield delay(2000)
+    }
+  } finally {
+    if (yield cancelled()) {
+      console.log('---', 'saga has been canceled')
+    }
+  }
+}
+
+/*
+export function* cancellableSyncSaga() {
+  const process = yield fork(syncAllWithPolling)
+
+  yield delay(5000)
+
+  yield cancel(process)
+}
+*/
+
+export function* cancellableSyncSaga() {
+  yield race({
+    sync: syncAllWithPolling(),
+    delay: delay(5000)
+    //   routeChanged: wathRouteChangeSaga(),
+    //    stopBtn: watchStopSyncSaga(),
+    //    signOut: wathAuthorizedSaga()
+  })
+}
+
+export function* exponentialRetrySaga(fetchSaga) {
+  for (let i = 0; i < 5; i++) {
+    try {
+      return yield call(fetchSaga)
+    } catch (e) {
+      yield delay(1000 * Math.pow(2, i))
+    }
+  }
+}
+
 export function* saga() {
-  yield all([takeEvery(FETCH_ALL_REQUEST, fetchAllSaga), addPersonSaga()])
+  yield spawn(cancellableSyncSaga)
+
+  yield all([addPersonSaga()])
 }

@@ -12,8 +12,8 @@ export default function initStore(initialState) {
 
   const enhancer = applyMiddleware(
     routerMiddleware(history),
-    sagaMiddleware
-    //        logger
+    sagaMiddleware,
+    logger
   )
 
   const store = createStore(reducer, enhancer, initialState)
