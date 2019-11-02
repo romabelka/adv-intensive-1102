@@ -1,4 +1,4 @@
-import { takeEvery, put, call } from 'redux-saga/effects'
+import { take, put, call } from 'redux-saga/effects'
 import { appName } from '../../config'
 import { Record } from 'immutable'
 import { generateId } from '../utils'
@@ -58,15 +58,19 @@ export const addPerson = ({ firstName, lastName, email }) => ({
  * Sagas
  * */
 
-export function* addPersonSaga({ payload }) {
-  const id = generateId()
+export function* addPersonSaga() {
+  while (true) {
+    const { payload } = yield take(ADD_PERSON_REQUEST)
 
-  yield put({
-    type: ADD_PERSON_SUCCESS,
-    payload: { ...payload, id }
-  })
+    const id = yield call(generateId)
+
+    yield put({
+      type: ADD_PERSON_SUCCESS,
+      payload: { ...payload, id }
+    })
+  }
 }
 
 export function* saga() {
-  yield takeEvery(ADD_PERSON_REQUEST, addPersonSaga)
+  yield call(addPersonSaga)
 }
