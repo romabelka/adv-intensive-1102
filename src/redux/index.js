@@ -4,7 +4,8 @@ import logger from 'redux-logger'
 import createSagaMiddleware from 'redux-saga'
 import reducer from './reducer'
 import history from '../history'
-import { init as initAuth, saga as authSaga } from './ducks/auth'
+import rootSaga from './saga'
+import { init as initAuth } from './ducks/auth'
 
 const sagaMiddleware = createSagaMiddleware()
 
@@ -16,7 +17,7 @@ const enhancer = applyMiddleware(
 
 const store = createStore(reducer, enhancer)
 
-sagaMiddleware.run(authSaga)
+sagaMiddleware.run(rootSaga)
 
 initAuth(store)
 
