@@ -1,7 +1,8 @@
-import { put, call, takeEvery } from 'redux-saga/effects'
+import { put, call, take } from 'redux-saga/effects'
 import { appName } from '../../config'
 import { Record } from 'immutable'
 import apiService from '../../services/api'
+import { delay } from 'q'
 
 /**
  * Constants
@@ -13,6 +14,7 @@ export const SIGN_UP_REQUEST = `${prefix}/SIGN_UP_REQUEST`
 export const SIGN_UP_START = `${prefix}/SIGN_UP_START`
 export const SIGN_UP_SUCCESS = `${prefix}/SIGN_UP_SUCCESS`
 export const SIGN_UP_ERROR = `${prefix}/SIGN_UP_ERROR`
+export const SIGN_UP_ERROR_LIMIT = `${prefix}/SIGN_UP_ERROR_LIMIT`
 
 export const SIGN_IN_SUCCESS = `${prefix}/SIGN_IN_SUCCESS`
 
@@ -61,30 +63,42 @@ export const signUp = (email, password) => ({
  * Sagas
  */
 
-export function* signUpSaga(action) {
-  const { email, password } = action.payload
+export function* signUpSaga() {
+  let attempts = 0
+  while (true) {
+    if (attempts === 3) yield delay(1000)
+    if (attempts >= 5) {
+      return yield put({
+        type: SIGN_UP_ERROR_LIMIT
+      })
+    }
 
-  yield put({
-    type: SIGN_UP_START
-  })
-
-  try {
-    const user = yield call(apiService.signUp, email, password)
+    const action = yield take(SIGN_UP_REQUEST)
+    const { email, password } = action.payload
 
     yield put({
-      type: SIGN_UP_SUCCESS,
-      payload: { user }
+      type: SIGN_UP_START
     })
-  } catch (error) {
-    yield put({
-      type: SIGN_UP_ERROR,
-      error
-    })
+
+    try {
+      const user = yield call(apiService.signUp, email, password)
+
+      yield put({
+        type: SIGN_UP_SUCCESS,
+        payload: { user }
+      })
+    } catch (error) {
+      attempts++
+      yield put({
+        type: SIGN_UP_ERROR,
+        error
+      })
+    }
   }
 }
 
 export function* saga() {
-  yield takeEvery(SIGN_UP_REQUEST, signUpSaga)
+  yield signUpSaga()
 }
 
 /**
