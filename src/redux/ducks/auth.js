@@ -1,3 +1,4 @@
+import { put, call, takeEvery } from 'redux-saga/effects'
 import { appName } from '../../config'
 import { Record } from 'immutable'
 import apiService from '../../services/api'
@@ -8,6 +9,7 @@ import apiService from '../../services/api'
 export const moduleName = 'auth'
 const prefix = `${appName}/${moduleName}`
 
+export const SIGN_UP_REQUEST = `${prefix}/SIGN_UP_REQUEST`
 export const SIGN_UP_START = `${prefix}/SIGN_UP_START`
 export const SIGN_UP_SUCCESS = `${prefix}/SIGN_UP_SUCCESS`
 export const SIGN_UP_ERROR = `${prefix}/SIGN_UP_ERROR`
@@ -50,24 +52,39 @@ export default function reducer(state = new ReducerRecord(), action) {
  * Action Creators
  * */
 
-export const signUp = (email, password) => async (dispatch) => {
-  dispatch({
+export const signUp = (email, password) => ({
+  type: SIGN_UP_REQUEST,
+  payload: { email, password }
+})
+
+/**
+ * Sagas
+ */
+
+export function* signUpSaga(action) {
+  const { email, password } = action.payload
+
+  yield put({
     type: SIGN_UP_START
   })
 
   try {
-    const user = await apiService.signUp(email, password)
+    const user = yield call(apiService.signUp, email, password)
 
-    dispatch({
+    yield put({
       type: SIGN_UP_SUCCESS,
       payload: { user }
     })
   } catch (error) {
-    dispatch({
+    yield put({
       type: SIGN_UP_ERROR,
       error
     })
   }
+}
+
+export function* saga() {
+  yield takeEvery(SIGN_UP_REQUEST, signUpSaga)
 }
 
 /**
